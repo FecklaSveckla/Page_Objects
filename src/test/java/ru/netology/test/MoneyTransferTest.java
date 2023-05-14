@@ -12,70 +12,69 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MoneyTransferTest {
 
-  @BeforeEach
-  public void openPage() {
+    @BeforeEach
+    public void openPage() {
 
-    open("http://localhost:7777");
+        open( "http://localhost:7777" );
 
-    val loginPage = new LoginPageV2();
-    val authInfo = DataHelper.getAuthInfo();
-    val verificationPage = loginPage.validLogin(authInfo);
-    val verificationCode = DataHelper.getVerificationCodeFor(authInfo);
-    val dashboardPage = verificationPage.validVerify(verificationCode);
-  }
+        val loginPage = new LoginPageV2();
+        val authInfo = DataHelper.getAuthInfo();
+        val verificationPage = loginPage.validLogin( authInfo );
+        val verificationCode = DataHelper.getVerificationCodeFor( authInfo );
+        verificationPage.validVerify( verificationCode );
+    }
 
 
+    @Test
+    void shouldTransferMoneyBetweenOwnCards1() {
 
-  @Test
-  void shouldTransferMoneyBetweenOwnCards1() {
+        val dashboardPage = new DashboardPage();
 
-    val dashboardPage = new DashboardPage();
+        int balanceFirstCard = dashboardPage.getFirstCardBalance();
+        int balanceSecondCard = dashboardPage.getSecondCardBalance();
+        val moneyTransfer = dashboardPage.firstCardButton();
+        val infoCard = DataHelper.getSecondCardNumber();
+        String sum = "100";
+        moneyTransfer.transferForm( sum, infoCard );
 
-    int balanceFirstCard = dashboardPage.getFirstCardBalance();
-    int balanceSecondCard = dashboardPage.getSecondCardBalance();
-    val moneyTransfer = dashboardPage.firstCardButton();
-    val infoCard = DataHelper.getSecondCardNumber();
-    String sum = "100";
-    moneyTransfer.transferForm(sum, infoCard);
+        assertEquals( balanceFirstCard + Integer.parseInt( sum ), dashboardPage.getFirstCardBalance() );
+        assertEquals( balanceSecondCard - Integer.parseInt( sum ), dashboardPage.getSecondCardBalance() );
+    }
 
-    assertEquals(balanceFirstCard + Integer.parseInt(sum), dashboardPage.getFirstCardBalance());
-    assertEquals(balanceSecondCard - Integer.parseInt(sum), dashboardPage.getSecondCardBalance());
-  }
+    @Test
+    void shouldTransferMoneyBetweenOwnCards2() {
 
-  @Test
-  void shouldTransferMoneyBetweenOwnCards2() {
+        val dashboardPage = new DashboardPage();
 
-    val dashboardPage = new DashboardPage();
+        int balanceFirstCard = dashboardPage.getFirstCardBalance();
+        int balanceSecondCard = dashboardPage.getSecondCardBalance();
+        val moneyTransfer = dashboardPage.secondCardButton();
+        val infoCard = DataHelper.getFirstCardNumber();
+        String sum = "1500";
+        moneyTransfer.transferForm( sum, infoCard );
 
-    int balanceFirstCard = dashboardPage.getFirstCardBalance();
-    int balanceSecondCard = dashboardPage.getSecondCardBalance();
-    val moneyTransfer = dashboardPage.secondCardButton();
-    val infoCard = DataHelper.getFirstCardNumber();
-    String sum = "1500";
-    moneyTransfer.transferForm(sum, infoCard);
+        assertEquals( balanceFirstCard - Integer.parseInt( sum ), dashboardPage.getFirstCardBalance() );
+        assertEquals( balanceSecondCard + Integer.parseInt( sum ), dashboardPage.getSecondCardBalance() );
+    }
 
-    assertEquals(balanceFirstCard - Integer.parseInt(sum), dashboardPage.getFirstCardBalance());
-    assertEquals(balanceSecondCard + Integer.parseInt(sum), dashboardPage.getSecondCardBalance());
-  }
+    @Test
+    void shouldCancellationOfMoneyTransfer() {
 
-  @Test
-  void shouldCancellationOfMoneyTransfer() {
+        val dashboardPage = new DashboardPage();
 
-    val dashboardPage = new DashboardPage();
+        val moneyTransfer = dashboardPage.firstCardButton();
+        moneyTransfer.cancelButton();
+    }
 
-    val moneyTransfer = dashboardPage.firstCardButton();
-    moneyTransfer.cancelButton();
-  }
+    @Test
+    void shouldTransferMoneyBetweenOwnCardsError() {
 
-  @Test
-  void shouldTransferMoneyBetweenOwnCardsError() {
+        val dashboardPage = new DashboardPage();
 
-    val dashboardPage = new DashboardPage();
-
-    val moneyTransfer = dashboardPage.secondCardButton();
-    val infoCard = DataHelper.getFirstCardNumber();
-    String sum = "20000";
-    moneyTransfer.transferForm(sum, infoCard);
-    moneyTransfer.getError();
-  }
+        val moneyTransfer = dashboardPage.secondCardButton();
+        val infoCard = DataHelper.getFirstCardNumber();
+        String sum = "20000";
+        moneyTransfer.transferForm( sum, infoCard );
+        moneyTransfer.getError();
+    }
 }
